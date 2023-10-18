@@ -12,8 +12,9 @@
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
-int moisture_level = 0;
 String led_status = "ON";
+String weather = "sunny";
+String date_time = "Wednesday, Oct 18th, 2023, 6:19pm";
 
 void setup() {
   // put your setup code here, to run once:
@@ -36,6 +37,7 @@ void setup() {
   Serial.print("Image Format: 0x"); Serial.println(x, HEX);
   x = tft.readcommand8(ILI9341_RDSELFDIAG);
   Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); */
+  mainMenu();
 
 }
 
@@ -45,26 +47,38 @@ void loop() {
 
 }
 
+/* prints current values for:
+ *  LED status
+ *  Weather
+ *  Date
+ *  Time
+ *  Day of week
+ * to the display
+*/
+
 unsigned long mainMenu() {
   // fill screen with white background
   tft.fillScreen(ILI9341_WHITE);
   unsigned long start = micros();
+
   tft.setCursor(0, 0);
   tft.setTextColor(ILI9341_BLACK);
   tft.setTextSize(1);
 
-  // get date and time info from wifi chip
-  tft.println("Date/Time: ");
-  tft.println();
-
-  //get moisture level from moisture sensor
-  tft.println("Moisure Level:");
-  tft.println(moisture_level);
-
   // get LED status from LDR sensor
   tft.println("LED Status: ");
   tft.println(led_status);
-
+  tft.println();
+  
+  // get outdoor weather from wifi chip
+  tft.println("Weather: ");
+  tft.println(weather);
+  tft.println();
+  
+  // get date/time/day of week info from wifi chip
+  tft.println("Date/Time: ");
+  tft.println(date_time);
+  tft.println();
   
   return micros() - start;
 }
