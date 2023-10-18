@@ -11,6 +11,8 @@
 #define TFT_MISO 12
 #define MAIN 0
 #define MOISTURE 1
+#define MOISTURE_SENSOR 2
+#define RELAY 3
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
@@ -22,8 +24,12 @@ int page = MAIN;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  
   pinMode(TFT_CS, OUTPUT);
   pinMode(7,OUTPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(SENSOR_PIN, INPUT);
+  
   digitalWrite(TFT_CS, HIGH);
   digitalWrite(7,HIGH);
 
@@ -45,8 +51,7 @@ void setup() {
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  // display either the main menu or moisture page
   switch(page) {
     case MAIN:
       mainMenu();
@@ -57,6 +62,8 @@ void loop() {
     default:
       break;
   }
+
+  
   // if user touches moisture sensor button, display which of the 2 plots needs to be watered based on moisture level
   if() {
     // display moisture page by switching page to MOISTURE
@@ -66,15 +73,30 @@ void loop() {
   if() {
     page = MAIN;
   }
+
+  
   // if between 8am and 8pm, turn on LED's based on light level
   // get time from wifi module
   if() {
     // LED and light sensor logic
+     //If there is no light then the sensor value will be 1 else the value will be 0
+    int sensorValue = digitalRead(SENSOR_PIN);
+    //Serial.println(sensorValue);
+    //Its dark
+    if (sensorValue == HIGH) {
+      digitalWrite(RELAY_PIN, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
+    }
+    else {
+      digitalWrite(RELAY_PIN, HIGH);    
+    }
+    //You can add delay for getting good light settled reading depending upon need
+    delay(1000);
   }
+  
   // always water plants based on soil moisture level
   // get moisture level from moisture sensor
   if() {
-    // water pump and moisture sensor lofic
+    // water pump and moisture sensor logic
   }
 } 
 
