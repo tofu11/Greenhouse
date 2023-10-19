@@ -56,6 +56,7 @@ void setup() {
   Serial.print("Image Format: 0x"); Serial.println(x, HEX);
   x = tft.readcommand8(ILI9341_RDSELFDIAG);
   Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); */
+  tft.fillScreen(ILI9341_WHITE);
   mainMenu();
 }
 
@@ -91,18 +92,26 @@ void loop() {
     // LED and light sensor logic
      //If there is no light then the sensor value will be 1 else the value will be 0
     int sensorValue = digitalRead(LDR_SENSOR);
+
     //Serial.println(sensorValue);
     //Its dark
     if (sensorValue == HIGH) {
       digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
+      if(!led_status) {
+        int x1 = 0, y1 = 0, x2 = 70, y2 = 20;
+        tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
+      }
       led_status = true;
     }
     else {
       digitalWrite(LDR_RELAY, HIGH);    
+      if(led_status) {
+        int x1 = 0, y1 = 0, x2 = 70, y2 = 20;
+        tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
+      }
       led_status = false;
     }
     //You can add delay for getting good light settled reading depending upon need
-    delay(1000);
   }
   
   // always water plants based on soil moisture level
@@ -144,7 +153,6 @@ boolean switchToMoisturePage() {
 
 unsigned long mainMenu() {
   // fill screen with white background
-  tft.fillScreen(ILI9341_WHITE);
   unsigned long start = micros();
 
   tft.setCursor(0, 0);
