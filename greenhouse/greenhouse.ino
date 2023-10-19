@@ -4,35 +4,45 @@
 
 // For the Adafruit shield, these are the default.
 #define TFT_CS 10
+#define T_CS 7
+
 #define TFT_DC 9
 #define TFT_MOSI 11
 #define TFT_CLK 13
 #define TFT_RST 8
 #define TFT_MISO 12
-#define MAIN 0
-#define MOISTURE 1
-#define MOISTURE_SENSOR 2
-#define RELAY 3
+#define LDR_SENSOR 2
+#define LDR_RELAY 3
+#define MOISTURE_SENSOR A0
+#define PUMP 6
+
+#define MAIN_MENU_PAGE 0
+#define MOISTURE_PAGE 1
+
+#define MOISTURE_LEVEL_BASE 600
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
-String led_status = "ON";
+boolean led_status = false;
 String weather = "sunny";
 String date_time = "Wednesday, Oct 18th, 2023, 6:19pm";
-int page = MAIN;
+int page = MAIN_MENU_PAGE;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   
   pinMode(TFT_CS, OUTPUT);
-  pinMode(7,OUTPUT);
-  pinMode(RELAY_PIN, OUTPUT);
-  pinMode(SENSOR_PIN, INPUT);
+  pinMode(T_CS,OUTPUT);
+  
+  pinMode(LDR_RELAY, OUTPUT);
+  pinMode(LDR_SENSOR, INPUT);
+  
+  pinMode(MOISTURE_SENSOR, INPUT);
+  pinMode(PUMP, OUTPUT);
   
   digitalWrite(TFT_CS, HIGH);
-  digitalWrite(7,HIGH);
-
+  digitalWrite(T_CS,HIGH);
   
   tft.begin();
   /* read diagnostics (optional but can help debug problems)
@@ -53,10 +63,10 @@ void setup() {
 void loop() {
   // display either the main menu or moisture page
   switch(page) {
-    case MAIN:
+    case MAIN_MENU_PAGE:
       mainMenu();
       break;
-    case MOISTURE:
+    case MOISTURE_PAGE:
       moisture();
       break;
     default:
@@ -65,29 +75,31 @@ void loop() {
 
   
   // if user touches moisture sensor button, display which of the 2 plots needs to be watered based on moisture level
-  if() {
+  if(switchToMainMenuPage()) {
     // display moisture page by switching page to MOISTURE
-    page = MOISTURE;
+    page = MOISTURE_PAGE;
   }
   // if on moisture page and user presses menu button, display main menu page
-  if() {
-    page = MAIN;
+  if(switchToMoisturePage()) {
+    page = MAIN_MENU_PAGE;
   }
 
   
   // if between 8am and 8pm, turn on LED's based on light level
   // get time from wifi module
-  if() {
+  if(senseLightLevel()) {
     // LED and light sensor logic
      //If there is no light then the sensor value will be 1 else the value will be 0
-    int sensorValue = digitalRead(SENSOR_PIN);
+    int sensorValue = digitalRead(LDR_SENSOR);
     //Serial.println(sensorValue);
     //Its dark
     if (sensorValue == HIGH) {
-      digitalWrite(RELAY_PIN, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
+      digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
+      led_status = true;
     }
     else {
-      digitalWrite(RELAY_PIN, HIGH);    
+      digitalWrite(LDR_RELAY, HIGH);    
+      led_status = false;
     }
     //You can add delay for getting good light settled reading depending upon need
     delay(1000);
@@ -95,8 +107,16 @@ void loop() {
   
   // always water plants based on soil moisture level
   // get moisture level from moisture sensor
-  if() {
-    // water pump and moisture sensor logic
+  int moisture_level = analogRead(MOISTURE_SENSOR);
+  Serial.print("moisture: ");
+  Serial.print(moisture_level);
+  Serial.print("\n");
+  if(moisture_level < MOISTURE_LEVEL_BASE) {
+    Serial.print("Turn pump on\n");
+    digitalWrite(PUMP, HIGH);
+  } else {
+    Serial.print("Turn pump off\n");
+    digitalWrite(PUMP, LOW);
   }
 } 
 
@@ -109,6 +129,19 @@ void loop() {
  * to the display
 */
 
+// if time is between 8am and 8pm according to wifi module, return true
+boolean senseLightLevel() {
+  return true;
+}
+
+boolean switchToMainMenuPage() {
+  return true;
+}
+
+boolean switchToMoisturePage() {
+  return true;
+}
+
 unsigned long mainMenu() {
   // fill screen with white background
   tft.fillScreen(ILI9341_WHITE);
@@ -120,7 +153,11 @@ unsigned long mainMenu() {
 
   // get LED status from LDR sensor
   tft.println("LED Status: ");
-  tft.println(led_status);
+  if(led_status) {
+    tft.println("ON");
+  }else {
+    tft.println("OFF");
+  }
   tft.println();
   
   // get outdoor weather from wifi chip
@@ -133,6 +170,11 @@ unsigned long mainMenu() {
   tft.println(date_time);
   tft.println();
   
+  return micros() - start;
+}
+
+unsigned long moisture() {
+  unsigned long start = micros();
   return micros() - start;
 }
 
