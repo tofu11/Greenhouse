@@ -24,7 +24,7 @@
 #define MAIN_MENU_PAGE 0
 #define MOISTURE_PAGE 1
 
-#define MOISTURE_LEVEL_BASE 600
+#define MOISTURE_LEVEL_BASE 450
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
@@ -82,17 +82,6 @@ void setup() {
   digitalWrite(T_CS,HIGH);
   
   tft.begin();
-  /* read diagnostics (optional but can help debug problems)
-  uint8_t x = tft.readcommand8(ILI9341_RDMODE);
-  Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDMADCTL);
-  Serial.print("MADCTL Mode: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDPIXFMT);
-  Serial.print("Pixel Format: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDIMGFMT);
-  Serial.print("Image Format: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDSELFDIAG);
-  Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); */
   tft.fillScreen(ILI9341_WHITE);
   mainMenu();
 }
@@ -202,7 +191,7 @@ void loop() {
   Serial.println(sensor1Value);
   Serial.print("Plant 2 - Moisture Level:");
   Serial.println(sensor2Value);
-  if (sensor1Value > 450 || sensor2Value > 450) {
+  if (sensor1Value > MOISTURE_LEVEL_BASE || sensor2Value > MOISTURE_LEVEL_BASE) {
     digitalWrite(PUMP, LOW);
   } else {
     digitalWrite(PUMP, HIGH);
