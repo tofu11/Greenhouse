@@ -17,7 +17,8 @@
 #define TFT_MISO 12
 #define LDR_SENSOR 2
 #define LDR_RELAY 3
-#define MOISTURE_SENSOR A0
+#define MOISTURE_SENSOR_1 A0
+#define MOISTURE_SENSOR_2 A1
 #define PUMP 6
 
 #define MAIN_MENU_PAGE 0
@@ -195,16 +196,16 @@ void loop() {
   
   // always water plants based on soil moisture level
   // get moisture level from moisture sensor
-  int moisture_level = analogRead(MOISTURE_SENSOR);
-  Serial.print("moisture: ");
-  Serial.print(moisture_level);
-  Serial.print("\n");
-  if(moisture_level < MOISTURE_LEVEL_BASE) {
-    Serial.print("Turn pump on\n");
-    digitalWrite(PUMP, HIGH);
-  } else {
-    Serial.print("Turn pump off\n");
+  sensor1Value = analogRead(MOISTURE_SENSOR_1);
+  sensor2Value = analogRead(MOISTURE_SENSOR_2);
+  Serial.print("Plant 1 - Moisture Level:");
+  Serial.println(sensor1Value);
+  Serial.print("Plant 2 - Moisture Level:");
+  Serial.println(sensor2Value);
+  if (sensor1Value > 450 || sensor2Value > 450) {
     digitalWrite(PUMP, LOW);
+  } else {
+    digitalWrite(PUMP, HIGH);
   }
 } 
 
