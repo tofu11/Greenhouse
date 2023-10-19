@@ -97,18 +97,14 @@ void loop() {
     //Its dark
     if (sensorValue == HIGH) {
       digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
-      if(!led_status) {
-        int x1 = 0, y1 = 0, x2 = 70, y2 = 20;
-        tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-      }
+      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
+      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
       led_status = true;
     }
     else {
       digitalWrite(LDR_RELAY, HIGH);    
-      if(led_status) {
-        int x1 = 0, y1 = 0, x2 = 70, y2 = 20;
-        tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-      }
+      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
+      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
       led_status = false;
     }
     //You can add delay for getting good light settled reading depending upon need
