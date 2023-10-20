@@ -1,6 +1,10 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
+#include "FastLED.h"
+
+#define NUM_LEDS 29
+
 
 // For the Adafruit shield, these are the default.
 #define TFT_CS 10
@@ -29,18 +33,38 @@ String weather = "sunny";
 String date_time = "Wednesday, Oct 18th, 2023, 6:19pm";
 int page = MAIN_MENU_PAGE;
 
+
+const byte DATA_PIN = 2;
+const byte ldrPin = A2;
+
+const int lightThreshold = 600;
+const int hysteresis = 20;
+
+CRGB leds[NUM_LEDS];
+CRGB Gold = CRGB(255, 215, 0);
+CRGB colors[] = {CRGB::Red, CRGB::Gold, CRGB::White}; // Add more colors if needed
+
+void setColor(CRGB color);
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(TFT_CS, OUTPUT);
   pinMode(T_CS,OUTPUT);
   
-  pinMode(LDR_RELAY, OUTPUT);
-  pinMode(LDR_SENSOR, INPUT);
+//  pinMode(LDR_RELAY, OUTPUT);
+//  pinMode(LDR_SENSOR, INPUT);
   
-  pinMode(MOISTURE_SENSOR, INPUT);
+  pinMode(MOISTURE_SENSOR_1, INPUT);
+  pinMode(MOISTURE_SENSOR_2, INPUT);
   pinMode(PUMP, OUTPUT);
   
+  pinMode(ldrPin, INPUT_PULLUP);
+  LEDS.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);
+  LEDS.setBrightness(120);
+  setColor(CRGB::Black);  // Turn all LEDs off
+  FastLED.show();
+
   digitalWrite(TFT_CS, HIGH);
   digitalWrite(T_CS,HIGH);
   
@@ -77,31 +101,56 @@ void loop() {
   // if between 8am and 8pm, turn on LED's based on light level
   // get time from wifi module
   if(senseLightLevel()) {
-    // LED and light sensor logic
-     //If there is no light then the sensor value will be 1 else the value will be 0
-    int sensorValue = digitalRead(LDR_SENSOR);
+    static unsigned long timer = 0;
+    static int colorIndex = 0;
+    unsigned long interval = 2000;
+    
+    if (millis() - timer >= interval)
+    {
+        timer = millis();
+        int lightValue = analogRead(ldrPin);
+        Serial.println(lightValue);
 
-    //Serial.println(sensorValue);
-    //Its dark
-    if (sensorValue == HIGH) {
-      digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
-      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
-      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-      led_status = true;
+        if (lightValue > lightThreshold + hysteresis)
+        {
+            // Change the color
+            setColor(colors[colorIndex]);
+            FastLED.show();
+            colorIndex = (colorIndex + 1) % (sizeof(colors) / sizeof(colors[0])); // Cycle through colors
+        }
+        else if (lightValue < lightThreshold - hysteresis)
+        {
+            setColor(CRGB::Black);
+            FastLED.show();
+        }
     }
-    else {
-      digitalWrite(LDR_RELAY, HIGH);    
-      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
-      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-      led_status = false;
-    }
-    //You can add delay for getting good light settled reading depending upon need
+//
+//    
+//    // LED and light sensor logic
+//     //If there is no light then the sensor value will be 1 else the value will be 0
+//    int sensorValue = digitalRead(LDR_SENSOR);
+//
+//    //Serial.println(sensorValue);
+//    //Its dark
+//    if (sensorValue == HIGH) {
+//      digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
+//      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
+//      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
+//      led_status = true;
+//    }
+//    else {
+//      digitalWrite(LDR_RELAY, HIGH);    
+//      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
+//      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
+//      led_status = false;
+//    }
+//    //You can add delay for getting good light settled reading depending upon need
   }
   
   // always water plants based on soil moisture level
   // get moisture level from moisture sensor
-  sensor1Value = analogRead(MOISTURE_SENSOR_1);
-  sensor2Value = analogRead(MOISTURE_SENSOR_2);
+  int sensor1Value = analogRead(MOISTURE_SENSOR_1);
+  int sensor2Value = analogRead(MOISTURE_SENSOR_2);
   Serial.print("Plant 1 - Moisture Level:");
   Serial.println(sensor1Value);
   Serial.print("Plant 2 - Moisture Level:");
@@ -167,6 +216,15 @@ unsigned long mainMenu() {
 unsigned long moisture() {
   unsigned long start = micros();
   return micros() - start;
+}
+
+
+void setColor(CRGB color)
+{
+    for (byte n = 0; n < NUM_LEDS; n++)
+    {
+        leds[n] = color;
+    }
 }
 
 // sample function from adafruit ili9341 library graphicstest example
