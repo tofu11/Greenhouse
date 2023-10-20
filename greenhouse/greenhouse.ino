@@ -182,7 +182,7 @@ unsigned long mainMenu() {
 
   tft.setCursor(0, 0);
   tft.setTextColor(ILI9341_BLACK);
-  tft.setTextSize(1);
+  tft.setTextSize(3);
 
   // get LED status from LDR sensor
   tft.println("LED Status: ");
@@ -192,32 +192,32 @@ unsigned long mainMenu() {
       tft.setTextColor(ILI9341_BLACK);
       tft.println("LED Status: ");
       tft.setTextColor(ILI9341_WHITE);
-      tft.println("OFF");
       tft.println("ON");
+      // tft.println("OFF");
       tft.setTextColor(ILI9341_BLACK);
       tft.setCursor(0, 0);
       tft.println("LED Status: ");
-      tft.println("ON");
+      tft.println("OFF");
     }else {
       tft.setCursor(0, 0);
       tft.setTextColor(ILI9341_BLACK);
       tft.println("LED Status: ");
       tft.setTextColor(ILI9341_WHITE);
+      // tft.println("ON");
       tft.println("OFF");
-      tft.println("ON");
       tft.setTextColor(ILI9341_BLACK);
       tft.setCursor(0, 0);
       tft.println("LED Status: ");
-      tft.println("OFF");
+      tft.println("ON");
     }
   }else {
     tft.setCursor(0, 0);
       tft.setTextColor(ILI9341_BLACK);
       tft.println("LED Status: ");
       if(led_status) {
-        tft.println("ON");
+        tft.println("OFF");
       }else {
-        tft.println("OFF");  
+        tft.println("ON");  
       }
   }
   tft.println();
