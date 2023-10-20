@@ -66,7 +66,7 @@ void loop() {
       lastConnectionTime = millis();
   }
 }
-  
+
 String httpGETRequest(String serverName) {
   
   //  String URL = serverName + "?key=" + API_KEY + "&q=" + CITY + "&aqi=no";
