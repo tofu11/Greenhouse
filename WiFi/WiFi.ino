@@ -5,17 +5,12 @@
 
 const char *ssid="UB_Connect";
 unsigned long lastConnectionTime = 0;
-//const unsigned long counter = 10L * 1000L; // delay between updates, in milliseconds
-//const String API_KEY = "a3607837a6a044f388275829231910";
-const String CITY = "Buffalo";
 
 String httpGETRequest(String serverName);
 
 WiFiClientSecure client;
 HTTPClient http;
-//String server_name = "api.weatherapi.com/v1/current.json";
-String server_name = "api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m,relativehumidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,cloudcover&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&forecast_days=1";
-String response;
+String server_name = "api.open-meteo.com/v1";
 
 void setup() {
   Serial.begin(115200);
@@ -38,13 +33,12 @@ void setup() {
   Serial.println("Connected!");
   Serial.print("NodeMCU IP Address:");
   Serial.print(WiFi.localIP());
-
 }
 
 // the loop function runs over and over again forever
 void loop() {
     if (millis() - lastConnectionTime > 5000) {  
-      response = httpGETRequest(server_name);
+      String response = httpGETRequest(server_name);
       Serial.println(response);
       JSONVar response_obj = JSON.parse(response);
 
@@ -68,9 +62,15 @@ void loop() {
 }
 
 String httpGETRequest(String serverName) {
-  
   //  String URL = serverName + "?key=" + API_KEY + "&q=" + CITY + "&aqi=no";
-  String URL = serverName;
+  String payload = "";
+  String forecast = "/forecast";
+  String lattitude = "?latitude=52.52";
+  String longitude = "&longitude=13.41";
+  String current = "&current=temperature_2m,relativehumidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,cloudcover";
+  String units = "&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch";
+  String forecast_days = "&forecast_days=1";
+  String URL = serverName + forecast + lattitude + longitude + current + units + forecast_days;
   http.begin(client, URL);
   
   // If you need Node-RED/server authentication, insert user and password below
@@ -79,17 +79,11 @@ String httpGETRequest(String serverName) {
   // Send HTTP POST request
   int httpResponseCode = http.GET();
   
-  String payload = "{}"; 
-  if(httpResponseCode > 0) {
-    Serial.print("Response: ");
-    Serial.println(http.getString());
-    Serial.println();
-    payload = http.getString();
-  }
-  else {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-  }
+  Serial.print("Response: ");
+  Serial.println(http.getString());
+  Serial.println();
+  payload = http.getString();
+
   // Free resources
   http.end();
   return payload;

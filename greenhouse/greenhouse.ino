@@ -203,7 +203,6 @@ unsigned long mainMenu() {
       tft.setTextColor(ILI9341_BLACK);
       tft.println("LED Status: ");
       tft.setTextColor(ILI9341_WHITE);
-      // tft.println("ON");
       tft.println("OFF");
       tft.setTextColor(ILI9341_BLACK);
       tft.setCursor(0, 0);
