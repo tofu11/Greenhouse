@@ -29,6 +29,7 @@
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 
 boolean led_status = false;
+boolean led_status_just_changed = false;
 String weather = "sunny";
 String date_time = "Wednesday, Oct 18th, 2023, 6:19pm";
 int page = MAIN_MENU_PAGE;
@@ -103,7 +104,7 @@ void loop() {
   if(senseLightLevel()) {
     static unsigned long timer = 0;
     static int colorIndex = 0;
-    unsigned long interval = 2000;
+    unsigned long interval = 3000;
     
     if (millis() - timer >= interval)
     {
@@ -113,6 +114,12 @@ void loop() {
 
         if (lightValue > lightThreshold + hysteresis)
         {
+            if(led_status) {
+              led_status_just_changed = true;
+              led_status = false;
+            }else {
+              led_status_just_changed = false;
+            }
             // Change the color
             setColor(colors[colorIndex]);
             FastLED.show();
@@ -120,31 +127,16 @@ void loop() {
         }
         else if (lightValue < lightThreshold - hysteresis)
         {
+            if(!led_status) {
+              led_status_just_changed = true;
+              led_status = true;
+            }else {
+              led_status_just_changed = false;
+            }
             setColor(CRGB::Black);
             FastLED.show();
         }
     }
-//
-//    
-//    // LED and light sensor logic
-//     //If there is no light then the sensor value will be 1 else the value will be 0
-//    int sensorValue = digitalRead(LDR_SENSOR);
-//
-//    //Serial.println(sensorValue);
-//    //Its dark
-//    if (sensorValue == HIGH) {
-//      digitalWrite(LDR_RELAY, LOW);  //Relay is low level triggered relay so we need to write LOW to switch on the light
-//      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
-//      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-//      led_status = true;
-//    }
-//    else {
-//      digitalWrite(LDR_RELAY, HIGH);    
-//      int x1 = 0, y1 = 6, x2 = 20, y2 = 15;
-//      tft.fillRect(x1, y1, x2-x1, y2-y1, ILI9341_WHITE);
-//      led_status = false;
-//    }
-//    //You can add delay for getting good light settled reading depending upon need
   }
   
   // always water plants based on soil moisture level
@@ -194,10 +186,39 @@ unsigned long mainMenu() {
 
   // get LED status from LDR sensor
   tft.println("LED Status: ");
-  if(led_status) {
-    tft.println("ON");
+  if(led_status_just_changed) {
+    if(led_status) {
+      tft.setCursor(0, 0);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.println("LED Status: ");
+      tft.setTextColor(ILI9341_WHITE);
+      tft.println("OFF");
+      tft.println("ON");
+      tft.setTextColor(ILI9341_BLACK);
+      tft.setCursor(0, 0);
+      tft.println("LED Status: ");
+      tft.println("ON");
+    }else {
+      tft.setCursor(0, 0);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.println("LED Status: ");
+      tft.setTextColor(ILI9341_WHITE);
+      tft.println("OFF");
+      tft.println("ON");
+      tft.setTextColor(ILI9341_BLACK);
+      tft.setCursor(0, 0);
+      tft.println("LED Status: ");
+      tft.println("OFF");
+    }
   }else {
-    tft.println("OFF");
+    tft.setCursor(0, 0);
+      tft.setTextColor(ILI9341_BLACK);
+      tft.println("LED Status: ");
+      if(led_status) {
+        tft.println("ON");
+      }else {
+        tft.println("OFF");  
+      }
   }
   tft.println();
   
