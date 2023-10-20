@@ -42,8 +42,10 @@ const int lightThreshold = 600;
 const int hysteresis = 20;
 
 CRGB leds[NUM_LEDS];
-CRGB Gold = CRGB(255, 215, 0);
-CRGB colors[] = {CRGB::Red, CRGB::Gold, CRGB::White}; // Add more colors if needed
+CRGB Violet = CRGB(127, 0, 255);
+CRGB colors[] = {CRGB::Violet};
+//CRGB Gold = CRGB(255, 215, 0);
+//CRGB colors[] = {CRGB::Red, CRGB::Gold, CRGB::White}; // Add more colors if needed
 
 void setColor(CRGB color);
 
